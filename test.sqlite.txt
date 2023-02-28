@@ -1,0 +1,123 @@
+
+
+--> Question 2.1 What are the Top 25 schools (.edu domains)?
+Ans:
+SELECT 
+email_domain,
+COUNT(*)
+FROM users
+WHERE email_domain LIKE '%.edu'
+GROUP BY 1
+ORDER BY 2 DESC
+LIMIT 25;
+ 
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-->Question 2.2 How many .edu learners are located in New York?
+Ans:
+SELECT 
+COUNT(*) as ny_students
+FROM users
+WHERE email_domain LIKE '%.edu' AND city = 'New York';
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ 
+-->Question 2.3 The mobile_app column contains either mobile-user or NULL. How many of these Codecademy learners are using the mobile app?
+Ans:
+
+SELECT 
+COUNT(*) as mobile_count
+FROM users
+WHERE mobile_app IS NOT NULL;
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ 
+-->Question 3 
+The data type of the sign_up_at column is DATETIME. It is for storing a date/time value in the database.
+Notice that the values are formatted like:
+2015-01-01 18:33:52
+So the format is:
+YYYY-MM-DD HH:MM:SS
+SQLite comes with a strftime() function - a very powerful function that allows you to return a formatted date.
+It takes two arguments:strftime(format, column)
+Let’s test this function out:
+SELECT sign_up_at,
+   strftime('%S', sign_up_at)
+FROM users
+GROUP BY 1
+LIMIT 20;Now, using this function, query for the sign up counts for each hour.
+Ans:
+SELECT sign_up_at,
+   strftime('%H', sign_up_at) as 'Hour'
+FROM users
+GROUP BY 1
+LIMIT 20;
+ ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-->Question 4 Join the two tables using JOIN and then see what you can dig out of the data!
+Ans:
+
+-->Update empty spaces to null values
+UPDATE progress
+SET learn_cpp = NULL
+WHERE learn_cpp = '';
+
+UPDATE progress
+SET learn_sql = NULL
+WHERE learn_sql = '';
+
+UPDATE progress
+SET learn_html = NULL
+WHERE learn_html = '';
+
+UPDATE progress
+SET learn_javascript = NULL
+WHERE learn_javascript = '';
+
+UPDATE progress
+SET learn_java = NULL
+WHERE learn_java = '';
+
+-->Question 4.1 Do different schools (.edu domains) prefer different courses?
+Ans:
+SELECT
+email_domain,
+ROUND(1.0 * count(p.learn_cpp)/(count(p.learn_cpp) + count(p.learn_sql) + count(p.learn_html) + count(p.learn_javascript) + count(p.learn_java)), 2) AS '%cpp',
+ROUND(1.0 * COUNT(p.learn_sql)/(count(p.learn_cpp) + count(p.learn_sql) + count(p.learn_html) + count(p.learn_javascript) + count(p.learn_java)), 2) AS '%sql',
+ROUND(1.0 * COUNT(p.learn_html)/(count(p.learn_cpp) + count(p.learn_sql) + count(p.learn_html) + count(p.learn_javascript) + count(p.learn_java)), 2) AS '%html',
+ROUND(1.0 * COUNT(p.learn_javascript)/(count(p.learn_cpp) + count(p.learn_sql) + count(p.learn_html) + count(p.learn_javascript) + count(p.learn_java)), 2) AS '%javasript',
+ROUND(1.0 * COUNT(p.learn_java)/(count(p.learn_cpp) + count(p.learn_sql) + count(p.learn_html) + count(p.learn_javascript) + count(p.learn_java)), 2) AS '%java'
+FROM users u
+JOIN progress p
+	ON u.user_id = p.user_id
+WHERE email_domain LIKE '%.edu'
+GROUP BY 1
+ORDER BY (count(p.learn_cpp) + count(p.learn_sql) + count(p.learn_html) + count(p.learn_javascript) + count(p.learn_java)) DESC
+LIMIT 10;
+ ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--Question 4.2 What courses are the New Yorkers students taking?
+Ans:
+SELECT
+ROUND(1.0 * count(p.learn_cpp)/(count(p.learn_cpp) + count(p.learn_sql) + count(p.learn_html) + count(p.learn_javascript) + count(p.learn_java)), 2) AS '%cpp',
+ROUND(1.0 * COUNT(p.learn_sql)/(count(p.learn_cpp) + count(p.learn_sql) + count(p.learn_html) + count(p.learn_javascript) + count(p.learn_java)), 2) AS '%sql',
+ROUND(1.0 * COUNT(p.learn_html)/(count(p.learn_cpp) + count(p.learn_sql) + count(p.learn_html) + count(p.learn_javascript) + count(p.learn_java)), 2) AS '%html',
+ROUND(1.0 * COUNT(p.learn_javascript)/(count(p.learn_cpp) + count(p.learn_sql) + count(p.learn_html) + count(p.learn_javascript) + count(p.learn_java)), 2) AS '%javasript',
+ROUND(1.0 * COUNT(p.learn_java)/(count(p.learn_cpp) + count(p.learn_sql) + count(p.learn_html) + count(p.learn_javascript) + count(p.learn_java)), 2) AS '%java'
+FROM users u
+JOIN progress p
+	ON u.user_id = p.user_id
+WHERE city = 'New York'
+ORDER BY (count(p.learn_cpp) + count(p.learn_sql) + count(p.learn_html) + count(p.learn_javascript) + count(p.learn_java)) DESC;
+ ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-->Question 4.3 What courses are the Chicago students taking?
+Ans:
+SELECT
+ROUND(1.0 * count(p.learn_cpp)/(count(p.learn_cpp) + count(p.learn_sql) + count(p.learn_html) + count(p.learn_javascript) + count(p.learn_java)), 2) AS '%cpp',
+ROUND(1.0 * COUNT(p.learn_sql)/(count(p.learn_cpp) + count(p.learn_sql) + count(p.learn_html) + count(p.learn_javascript) + count(p.learn_java)), 2) AS '%sql',
+ROUND(1.0 * COUNT(p.learn_html)/(count(p.learn_cpp) + count(p.learn_sql) + count(p.learn_html) + count(p.learn_javascript) + count(p.learn_java)), 2) AS '%html',
+ROUND(1.0 * COUNT(p.learn_javascript)/(count(p.learn_cpp) + count(p.learn_sql) + count(p.learn_html) + count(p.learn_javascript) + count(p.learn_java)), 2) AS '%javasript',
+ROUND(1.0 * COUNT(p.learn_java)/(count(p.learn_cpp) + count(p.learn_sql) + count(p.learn_html) + count(p.learn_javascript) + count(p.learn_java)), 2) AS '%java'
+FROM users u
+JOIN progress p
+	ON u.user_id = p.user_id
+WHERE city = 'New York'
+ORDER BY (count(p.learn_cpp) + count(p.learn_sql) + count(p.learn_html) + count(p.learn_javascript) + count(p.learn_java)) DESC;
+
+ 
